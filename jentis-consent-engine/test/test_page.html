@@ -1,0 +1,216 @@
+<!doctype html>
+<html>
+	<head>
+        <!-- Cookiebot, cookie consent script -->
+        <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="06df826b-7528-41f6-89c6-9af149a31ac9" 
+        data-blockingmode="auto" type="text/javascript"></script>
+		<!-- Bootstrap 4.5 -->
+		<link rel="stylesheet" href="./Bootstrap_4.5/css/bootstrap.min.css">
+		<script src="./Bootstrap_4.5/js/jquery-3.5.1.min.js"></script>
+		<script src="./Bootstrap_4.5/js/bootstrap.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<title>JENTIS Consent Engine Test</title>
+
+		<!-- Jentis-Consent-Engine files -->
+		<script src="./test_conf.js"></script> <!-- Changed test_conf1.js filename to test_conf.js -->
+		<script src="../JentisConsentEngine.js"></script>
+		<script src="./JCE_bridge_GTM.js"></script>
+        
+		<script>
+			// JCE event listeners
+			document.addEventListener('jentis.consent.engine.minimal-consent-given', function (e)
+			{
+				console.log("Minimal Consent is given: %o",e.detail);
+			});
+			document.addEventListener('jentis.consent.engine.no-consent-given', function (e)
+			{
+				console.log("No Consent is given: %o",e.detail);
+			});
+			document.addEventListener('jentis.consent.engine.send-consent-data', function (e)
+			{
+				console.log("SEND Consent to Server: %o",e.detail);
+			});
+			document.addEventListener('jentis.consent.engine.show-bar', function (e)
+			{
+				console.log("Show Bar now: %o",e.detail);
+			});
+						
+			document.addEventListener('jentis.consent.engine.vendor-change', function (e)
+			{
+				console.log("Vendor Changed: %o",e.detail);
+			});			
+
+			document.addEventListener('jentis.consent.engine.vendor-add', function (e)
+			{
+				console.log("Vendor Add: %o",e.detail);
+			});			
+
+			document.addEventListener('jentis.consent.engine.init', function (e)
+			{
+				console.log("CMP Init: %o",e.detail);
+			});
+
+			// Checking DNT
+			document.addEventListener('load', (e) => {
+				if(Cookiebot.doNotTrack)
+				{
+					console.log("DNT is ON, tracking is not allowed...");
+				}
+				else
+				{
+					console.log("DNT is OFF, tracking is allowed!");
+				}
+				// “...In this case we have to “bridge” this consentbar in order to get all the information we need to know, especially if we are allowed to track or not.”
+				window.addEventListener('CookiebotOnConsentReady', function (e) {
+					//Cookie operator function
+						function setCookies(adw,ga,pref)
+						{
+							var fb = false;
+							if(adw)
+							{
+								//Enabling fb because in the template it's a Marketing cookie too
+								fb = true;
+							}
+							if(pref)
+							{
+								//functional cookies...
+							}
+							// Checking which cookies are accepted, to log on the Console.  Its not a necessary function.
+							const checkCookies = (adw,ga,pref) => {
+								let cookiesAccepted = "";
+								if(adw && ga && fb) cookiesAccepted = "All cookies are accepted!";
+								if(ga && !adw && !fb && !pref) cookiesAccepted = "Only statistics cookies are accepted!";
+								if(!ga && adw && fb && !pref) cookiesAccepted = "Only marketing cookies are accepted!";
+								if(ga && adw && fb && !pref) cookiesAccepted = "Only statistics && marketing cookies are accepted!";
+								if(pref && !adw && !ga && !fb) cookiesAccepted = "Only preferences cookies are accepted!";
+								if(pref && adw && !ga && fb) cookiesAccepted = "Only preferences && marketing cookies are accepted!";
+								if(pref && !adw && ga && !fb) cookiesAccepted = "Only preferences && statistics cookies are accepted!";
+								if(!adw && !ga && !pref && !fb) cookiesAccepted = "Only necessary cookies are accepted!";
+								return console.log(cookiesAccepted);
+							}
+							var sConsentId = jentis.consent.engine.setNewVendorConsents({
+								"adw" : adw,
+								"ga"  : ga,
+								"fb"  : fb
+							});
+							checkCookies(adw,ga,pref);
+						}
+						//Execute code that sets ALL cookies at once
+						setCookies(Cookiebot.consent.marketing,Cookiebot.consent.statistics,Cookiebot.consent.preferences);
+				}, false);
+			});
+		</script>
+		
+		<script>
+
+		function acceptAll()
+		{
+			jentis.consent.engine.AcceptAll();
+		}
+		
+		function acceptGa()
+		{		
+			var sConsentId = jentis.consent.engine.setNewVendorConsents({
+			  "ga"  : true, 
+			  "fb"  : true
+			});
+		}
+		
+		function denyAll()
+		{		
+			var sConsentId = jentis.consent.engine.DenyAll();
+		}
+		
+		function MigrateOldConsent()
+		{
+			var aData = {
+				consentid: "TESTTESTTEST",
+				lastupdate: 100,
+				vendors: {"ga":true,"fb":false,"adw":false}	
+			};
+			var sJson = JSON.stringify(aData);
+
+			//Now write it to the local storage
+			localStorage.setItem("jentis.consent.data", sJson);		
+		}
+		
+		function MigrateInTimeConsent()
+		{
+			var aData = {
+				consentid: "TESTTESTTEST",
+				lastupdate: Date.now()-1000,
+				vendors: {"ga":true,"fb":false,"adw":false}
+			};
+			var sJson = JSON.stringify(aData);
+
+			//Now write it to the local storage
+			localStorage.setItem("jentis.consent.data", sJson);		
+		}
+		</script>
+
+		<style>
+			button
+			{
+				min-width:200px;
+				margin: 0.2em;
+			}
+			.btn
+			{
+				border-radius: 100px;
+			}
+			#consent-bar
+			{
+				width: 100%;
+				box-shadow: 5px 10px 10px #babfc2;
+			}
+			.box
+			{
+				margin: auto;
+				margin-top: 5em;
+				width: 20em;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- Just a simple template for the default test buttons -->
+		<div id="consent-bar-parent"></div>
+		<script src="./injectConsentBar.js"></script>
+		<script>
+			var btn = document.getElementById('thisBtn');
+			var containerElement = document.getElementById('consent-bar-parent');
+			function injectConsentBar()
+			{
+				if(containerElement.innerHTML !== "")
+				{
+					btn.innerText = "Show demo consent bar";
+					$("#consent-bar-parent").slideUp('slow');
+					inject(containerElement,false);
+					
+				}
+				else{
+					inject(containerElement,true);
+					btn.innerText = "Hide demo consent bar";
+					$('#consent-bar-parent').slideDown("slow");
+				}
+			}
+		</script>
+		<div class="container box text-center">
+			<button class="btn btn-outline-success" id="thisBtn" onclick="injectConsentBar()">Show demo consent bar</button>
+		</div>
+		<!-- Cookiebot consent bar-->
+        <script id="CookieDeclaration" src="https://consent.cookiebot.com/06df826b-7528-41f6-89c6-9af149a31ac9/cd.js" type="text/javascript" async></script>
+		<script>
+			oVendorInfo = jentis.consent.engine.getVendorFullData();
+			console.log("test_conf.js data:")
+			console.log(oVendorInfo);
+			
+		</script>
+		<!--
+						<button onclick="acceptAll();">Accept All</button>
+						<button onclick="acceptGa();">Accept GA</button>
+						<button onclick="denyAll();">DENY All</button>
+						<button onclick="MigrateOldConsent();">Do old consent OUT OF TIME</button>
+						<button onclick="MigrateInTimeConsent();">Do old consent IN TIME</button>
+		 -->
+	</body>
+</html>
