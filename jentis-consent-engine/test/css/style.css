@@ -1,0 +1,56 @@
+.btn {
+  min-width: 200px;
+  background-color: tomato;
+  color: white;
+  border: 2px solid tomato;
+  padding: 8px 8px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  margin: 0.2em;
+  border-radius: 15px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+  text-shadow: 2px 2px 2px black;
+}
+.btn:hover,
+.btn:focus {
+  background-color: rgb(197, 63, 39);
+  border-color: rgb(197, 63, 39);
+}
+.deny {
+  background-color: rgb(197, 63, 39) !important;
+  border-color: rgb(197, 63, 39) !important;
+}
+.deny:hover,
+.deny:focus {
+  background-color: rgb(155, 44, 24) !important;
+  border-color: rgb(155, 44, 24) !important;
+}
+.consent-bar {
+  background-color: #2f3640;
+  color: white;
+  box-shadow: 0 -2px 32px #2f3640bd;
+  margin: 0;
+  position: fixed;
+  bottom: -100%;
+  left: 0;
+  right: 0;
+  padding: 15px 30px;
+  transition-duration: 1s;
+}
+.consent-bar.active {
+  bottom: 0;
+}
+.consent-bar > p > a,
+.consent-bar > p > a:any-link {
+  text-decoration: underline;
+  color: white;
+  transition-duration: 0.4s;
+}
+.consent-bar > p > a:hover {
+  color: tomato;
+}
+.icon {
+  float: left;
+}
